@@ -1,8 +1,31 @@
-#ifndef __MONTY__H__
-#define __MONTY__H__
-#include <stdio.h>
+#ifndef _MONTY_H_
+#define _MONTY_H_
+
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+/**
+ * struct var_s - struct to contain the main variables of the Monty interpreter
+ * @queue: flag to determine if in stack vs queue mode
+ * @stack_len: length of the stack
+ */
+typedef struct var_s
+{
+	int queue;
+	size_t stack_len;
+} var_t;
+
+#define STACK 0
+#define QUEUE 1
+
+/* global struct to hold flag for queue and stack length */
+extern var_t var;
+
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
  * @n: integer
@@ -18,8 +41,9 @@ typedef struct stack_s
 	struct stack_s *prev;
 	struct stack_s *next;
 } stack_t;
+
 /**
- * struct instruction_s - opcode and its function
+ * struct instruction_s - opcoode and its function
  * @opcode: the opcode
  * @f: function to handle the opcode
  *
@@ -31,43 +55,29 @@ typedef struct instruction_s
 	char *opcode;
 	void (*f)(stack_t **stack, unsigned int line_number);
 } instruction_t;
-/* global variable */
-/**
- * struct glo_s - global variable
- * @fp: The file we open and read
- * @line_buff: the buffer that holds the command for each line
- * @bigb: the array of strings that holds the command
- * @node_data: The integer to use for data in a given node if necessary
- * Description: Allows us to pass variables across our code
- */
-typedef struct glo_s
-{
-	FILE *fp;
-	char *line_buff;
-	char **bigb;
-	int node_data;
-} glo_t;
-extern glo_t glo;
 
-char **parse_line();
+void get_op(char *op, stack_t **stack, unsigned int line_number);
+void m_push(stack_t **stack, unsigned int line_number);
+void m_push2(stack_t **stack, int n);
+void m_pall(stack_t **stack, unsigned int line_number);
+void m_pint(stack_t **stack, unsigned int line_number);
+void m_pop(stack_t **stack, unsigned int line_number);
+void m_swap(stack_t **stack, unsigned int line_number);
+void m_add(stack_t **stack, unsigned int line_number);
+void m_nop(stack_t **stack, unsigned int line_number);
+void m_sub(stack_t **stack, unsigned int line_number);
+void m_mul(stack_t **stack, unsigned int line_number);
+void m_div(stack_t **stack, unsigned int line_number);
+void m_mod(stack_t **stack, unsigned int line_number);
+void rotl(stack_t **stack, unsigned int line_number);
+void rotr(stack_t **stack, unsigned int line_number);
+void m_stack(stack_t **stack, unsigned int line_number);
+void m_queue(stack_t **stack, unsigned int line_number);
+void m_pchar(stack_t **stack, unsigned int line_number);
+void m_pstr(stack_t **stack, unsigned int line_number);
+void free_stack(int status, void *arg);
+void m_fs_close(int status, void *arg);
+void free_lineptr(int status, void *arg);
+stack_t *add_node(stack_t **stack, const int n);
 
-/* Checks and executes given commands */
-int get_opcode(stack_t **stack, unsigned int line_number);
-void op_push(stack_t **stack, unsigned int line_number);
-void op_pall(stack_t **stack, unsigned int line_number);
-void op_pint(stack_t **stack, unsigned int line_number);
-void op_pop(stack_t **stack, unsigned int line_number);
-void op_add(stack_t **stack, unsigned int line_number);
-void op_swap(stack_t **stack, unsigned int line_number);
-void op_nop(stack_t **stack, unsigned int line_number);
-
-/* Conditional statements to check for failure */
-void argc_check(int argc);
-void open_check(char **argv);
-void line_check(ssize_t lines);
-void op_check(int check, unsigned int counter);
-
-/* Freeing functions */
-void free_buff(void);
-void free_stack(stack_t *head);
-#endif
+#endif /* _MONTY_H_ */

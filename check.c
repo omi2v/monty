@@ -1,61 +1,51 @@
 #include "monty.h"
+#include <ctype.h>
+
 /**
- * argc_check - Check to see if argc == 2
- * @argc: argument counter
- * Return: nothing
+ * check_for_digit - checks that a string only contains digits
+ * @arg: string to check
+ *
+ * Return: 0 if only digits, else 1
  */
-void argc_check(int argc)
+static int check_for_digit(char *arg)
 {
-	if (argc != 2)
+	int i;
+
+	for (i = 0; arg[i]; i++)
 	{
-		dprintf(2, "USAGE: monty file\n");
-		exit(EXIT_FAILURE);
+		if (arg[i] == '-' && i == 0)
+			continue;
+		if (isdigit(arg[i]) == 0)
+			return (1);
 	}
+	return (0);
 }
 
 /**
- * open_check - Check to see if .m file was opened successfully
- * @argv: argument vector
- * Return: nothing
+ * m_push - push an integer onto the stack
+ * @stack: double pointer to the beginning of the stack
+ * @line_number: script line number
+ *
+ * Return: void
  */
-void open_check(char **argv)
+void m_push(stack_t **stack, unsigned int line_number)
 {
-	if (glo.fp == NULL)
+	char *arg;
+	int n;
+
+	arg = strtok(NULL, "\n\t\r ");
+	if (arg == NULL || check_for_digit(arg))
 	{
-		dprintf(2, "Error: Can't open file %s\n", argv[1]);
+		dprintf(STDOUT_FILENO,
+			"L%u: usage: push integer\n",
+			line_number);
 		exit(EXIT_FAILURE);
 	}
-}
-
-/**
- * line_check - Check to see if the file was read correctly
- * @lines: the number of lines in the file. Failure if == -1
- * Return: nothing
- */
-void line_check(ssize_t lines)
-{
-	if (lines == -1)
+	n = atoi(arg);
+	if (!add_node(stack, n))
 	{
-		free(glo.line_buff);
-		fclose(glo.fp);
-		exit(0);
-	}
-}
-
-/**
- * op_check - Check to see if the correct op code was found
- * @check: Integer that tells us if the op code was found or not
- * @c: line number
- * Return: nothing
- */
-void op_check(int check, unsigned int c)
-{
-	if (check == 0)
-	{
-		dprintf(2, "L%u: unknown instruction %s\n", c, glo.bigb[0]);
-		free(glo.bigb);
-		free(glo.line_buff);
-		fclose(glo.fp);
+		dprintf(STDOUT_FILENO, "Error: malloc failed\n");
 		exit(EXIT_FAILURE);
 	}
+	var.stack_len++;
 }
