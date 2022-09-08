@@ -60,3 +60,4 @@ void op_check(int check, unsigned int c)
 		fclose(glo.fp);
 		exit(EXIT_FAILURE);
 	}
+}
